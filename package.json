@@ -1,0 +1,40 @@
+{
+  "name": "pd-dynamic-form",
+  "private": true,
+  "exports": {
+    "./core": {
+      "types": "./packages/core/src/index.ts",
+      "import": "./packages/core/src/index.ts"
+    },
+    "./react": {
+      "types": "./packages/react/src/index.tsx",
+      "import": "./packages/react/src/index.tsx"
+    },
+    "./vue": {
+      "types": "./packages/vue/src/index.ts",
+      "import": "./packages/vue/src/index.ts"
+    }
+  },
+  "scripts": {
+    "build:all": "turbo run build",
+    "dev:all": "turbo run dev",
+    "test:all": "turbo run test",
+    "lint:all": "turbo run lint"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.3",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
+    "eslint": "^9.39.3",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-vue": "^10.8.0",
+    "globals": "^15.15.0",
+    "prettier": "^3.8.1",
+    "turbo": "latest",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.56.1",
+    "vitest": "^1.0.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+}

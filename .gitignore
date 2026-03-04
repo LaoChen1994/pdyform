@@ -1,0 +1,32 @@
+# Package manager
+node_modules/
+.pnpm-debug.log*
+
+# Build outputs
+dist/
+.turbo/
+build/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+
+# Testing
+coverage/
+*.log
+
+# Environment variables
+.env
+.env.*.local
+
+# Dependency directories
+jspm_packages/
+
+# TypeScript
+*.tsbuildinfo
