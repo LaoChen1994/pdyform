@@ -40,6 +40,12 @@ describe('core utils - validateField', () => {
       expect(validateField(10, fieldNum)).toBeNull();
       expect(validateField(21, fieldNum)).toBe('F2 must be at most 20');
     });
+
+    it('treats numeric strings as numbers for number fields', () => {
+      expect(validateField('9', fieldNum)).toBe('F2 must be at least 10');
+      expect(validateField('10', fieldNum)).toBeNull();
+      expect(validateField('22', fieldNum)).toBe('F2 must be at most 20');
+    });
   });
 
   describe('email', () => {

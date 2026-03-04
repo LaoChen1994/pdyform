@@ -1,5 +1,12 @@
 import type { FormField } from './types';
 
+function parseNumberish(value: unknown): number | null {
+  if (typeof value === 'number') return Number.isNaN(value) ? null : value;
+  if (typeof value !== 'string' || value.trim() === '') return null;
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
 export function validateField(value: any, field: FormField): string | null {
   if (!field.validations) return null;
 
@@ -11,6 +18,13 @@ export function validateField(value: any, field: FormField): string | null {
         }
         break;
       case 'min':
+        if (field.type === 'number') {
+          const numericValue = parseNumberish(value);
+          if (numericValue !== null && numericValue < rule.value) {
+            return rule.message || `${field.label} must be at least ${rule.value}`;
+          }
+          break;
+        }
         if (typeof value === 'number' && value < rule.value) {
           return rule.message || `${field.label} must be at least ${rule.value}`;
         }
@@ -19,6 +33,13 @@ export function validateField(value: any, field: FormField): string | null {
         }
         break;
       case 'max':
+        if (field.type === 'number') {
+          const numericValue = parseNumberish(value);
+          if (numericValue !== null && numericValue > rule.value) {
+            return rule.message || `${field.label} must be at most ${rule.value}`;
+          }
+          break;
+        }
         if (typeof value === 'number' && value > rule.value) {
           return rule.message || `${field.label} must be at most ${rule.value}`;
         }

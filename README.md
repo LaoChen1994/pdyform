@@ -1,7 +1,7 @@
 # pdyform
 
 [![npm version](https://badge.fury.io/js/pdyform.svg)](https://badge.fury.io/js/pdyform)
-[![Tests](https://img.shields.io/badge/tests-6%20passed%20(100%25)-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-27%20passed%20(100%25)-brightgreen.svg)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 [English](#english) | [中文说明](#中文说明)
@@ -174,3 +174,30 @@ pnpm run build:all
 # Run all tests / 运行所有单元测试
 pnpm run test:all
 ```
+
+## Examples / 示例工程
+
+新增 `example/` 目录用于本地开发调试（实时编辑 schema，验证 React/Vue 渲染与提交结果）：
+
+- `example/react-demo`：React 渲染与 schema 调试
+- `example/vue-demo`：Vue 渲染与 schema 调试
+- `example/shared/defaultSchema.ts`：共享默认 schema
+
+在根目录运行：
+
+```bash
+# React + Vue 同时启动（推荐）
+pnpm run dev:example
+
+# 单独启动 React demo
+pnpm run dev:example:react
+
+# 单独启动 Vue demo
+pnpm run dev:example:vue
+
+# 构建示例工程
+pnpm run build:example:react
+pnpm run build:example:vue
+```
+
+更多说明见 `example/README.md`。

@@ -26,6 +26,17 @@ describe('FormFieldRenderer', () => {
     expect(wrapper.emitted('update:modelValue')![0]).toEqual(['new value']);
   });
 
+  it('emits number for number inputs', async () => {
+    const field: FormField = { ...defaultField, type: 'number' };
+    const wrapper = mount(FormFieldRenderer, {
+      props: { field, modelValue: 22 }
+    });
+
+    const input = wrapper.find('input');
+    await input.setValue('23');
+    expect(wrapper.emitted('update:modelValue')![0]).toEqual([23]);
+  });
+
   it('renders a textarea correctly', async () => {
     const field: FormField = { ...defaultField, type: 'textarea' };
     const wrapper = mount(FormFieldRenderer, {
