@@ -29,8 +29,13 @@
   "scripts": {
     "build:all": "turbo run build",
     "dev:all": "turbo run dev",
+    "dev:example": "turbo run dev --filter=@example/*",
     "test:all": "turbo run test",
-    "lint:all": "turbo run lint"
+    "lint:all": "turbo run lint",
+    "dev:example:react": "pnpm --filter @example/react-demo dev",
+    "dev:example:vue": "pnpm --filter @example/vue-demo dev",
+    "build:example:react": "pnpm --filter @example/react-demo build",
+    "build:example:vue": "pnpm --filter @example/vue-demo build"
   },
   "license": "MIT",
   "homepage": "https://github.com/LaoChen1994/pdyform",

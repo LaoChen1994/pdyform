@@ -25,6 +25,16 @@ describe('FormFieldRenderer', () => {
     expect(onChange).toHaveBeenCalledWith('new value');
   });
 
+  it('emits number for number inputs', () => {
+    const field: FormField = { ...defaultField, type: 'number' };
+    const onChange = vi.fn();
+    render(<FormFieldRenderer field={field} value={22} onChange={onChange} />);
+
+    const input = screen.getByLabelText('Test Label') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: '23' } });
+    expect(onChange).toHaveBeenCalledWith(23);
+  });
+
   it('renders a textarea correctly', () => {
     const field: FormField = { ...defaultField, type: 'textarea' };
     const onChange = vi.fn();
