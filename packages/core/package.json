@@ -1,6 +1,13 @@
 {
   "name": "pdyform-core",
   "version": "1.0.0",
+  "description": "Core logic and schema parser for pdyform.",
+  "keywords": [
+    "dynamic-form",
+    "schema-form",
+    "core",
+    "json-schema"
+  ],
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

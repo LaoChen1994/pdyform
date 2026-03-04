@@ -1,6 +1,13 @@
 {
   "name": "pdyform-vue",
   "version": "1.0.0",
+  "description": "Vue components for pdyform based on Shadcn-vue.",
+  "keywords": [
+    "dynamic-form",
+    "schema-form",
+    "vue",
+    "shadcn-vue"
+  ],
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

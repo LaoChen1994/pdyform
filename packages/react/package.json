@@ -1,6 +1,13 @@
 {
   "name": "pdyform-react",
   "version": "1.0.0",
+  "description": "React components for pdyform based on Shadcn UI.",
+  "keywords": [
+    "dynamic-form",
+    "schema-form",
+    "react",
+    "shadcn"
+  ],
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

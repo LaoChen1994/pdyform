@@ -1,5 +1,14 @@
 {
   "name": "pdyform",
+  "description": "A high-performance, schema-driven dynamic form system with React and Vue support.",
+  "keywords": [
+    "dynamic-form",
+    "schema-form",
+    "react",
+    "vue",
+    "json-schema",
+    "form-builder"
+  ],
   "exports": {
     "./core": {
       "types": "./packages/core/dist/index.d.ts",
