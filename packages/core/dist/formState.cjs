@@ -17,21 +17,16 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/index.ts
-var index_exports = {};
-__export(index_exports, {
+// src/formState.ts
+var formState_exports = {};
+__export(formState_exports, {
   applyFieldBlur: () => applyFieldBlur,
   applyFieldChange: () => applyFieldChange,
   createFormRuntimeState: () => createFormRuntimeState,
-  getDefaultValues: () => getDefaultValues,
-  normalizeFieldValue: () => normalizeFieldValue,
   runSubmitValidation: () => runSubmitValidation,
-  setSubmitting: () => setSubmitting,
-  validateField: () => validateField,
-  validateFieldByName: () => validateFieldByName,
-  validateForm: () => validateForm
+  setSubmitting: () => setSubmitting
 });
-module.exports = __toCommonJS(index_exports);
+module.exports = __toCommonJS(formState_exports);
 
 // src/utils.ts
 function parseNumberish(value) {
@@ -187,11 +182,6 @@ function runSubmitValidation(fields, state) {
   applyFieldBlur,
   applyFieldChange,
   createFormRuntimeState,
-  getDefaultValues,
-  normalizeFieldValue,
   runSubmitValidation,
-  setSubmitting,
-  validateField,
-  validateFieldByName,
-  validateForm
+  setSubmitting
 });

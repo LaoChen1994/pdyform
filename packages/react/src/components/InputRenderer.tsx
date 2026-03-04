@@ -1,15 +1,11 @@
 import React from 'react';
+import { normalizeFieldValue } from 'pdyform/core';
 import type { FieldRenderContext } from './types';
 import { Input } from './Input';
 
 const InputRenderer: React.FC<FieldRenderContext> = ({ field, value, onChange, onBlur, fieldId }) => {
   const handleChange = (nextValue: string) => {
-    if (field.type !== 'number') {
-      onChange(nextValue);
-      return;
-    }
-
-    onChange(nextValue === '' ? '' : Number(nextValue));
+    onChange(normalizeFieldValue(field, nextValue));
   };
 
   return (

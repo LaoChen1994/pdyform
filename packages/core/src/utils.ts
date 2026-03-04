@@ -7,6 +7,15 @@ function parseNumberish(value: unknown): number | null {
   return Number.isNaN(parsed) ? null : parsed;
 }
 
+export function normalizeFieldValue(field: FormField, value: unknown): unknown {
+  if (field.type !== 'number') return value;
+
+  if (value === '' || value === undefined || value === null) return '';
+
+  const numericValue = parseNumberish(value);
+  return numericValue === null ? value : numericValue;
+}
+
 export function validateField(value: any, field: FormField): string | null {
   if (!field.validations) return null;
 
@@ -70,6 +79,21 @@ export function validateField(value: any, field: FormField): string | null {
   }
 
   return null;
+}
+
+export function validateFieldByName(fields: FormField[], name: string, value: unknown): string | null {
+  const field = fields.find((f) => f.name === name);
+  if (!field) return null;
+  return validateField(value, field);
+}
+
+export function validateForm(fields: FormField[], values: Record<string, any>): Record<string, string> {
+  const errors: Record<string, string> = {};
+  for (const field of fields) {
+    const error = validateField(values[field.name], field);
+    if (error) errors[field.name] = error;
+  }
+  return errors;
 }
 
 export function getDefaultValues(fields: FormField[]): Record<string, any> {

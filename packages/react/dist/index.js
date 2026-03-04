@@ -1,6 +1,12 @@
 // src/DynamicForm.tsx
 import { useState } from "react";
-import { validateField, getDefaultValues } from "pdyform/core";
+import {
+  createFormRuntimeState,
+  applyFieldChange,
+  applyFieldBlur,
+  runSubmitValidation,
+  setSubmitting
+} from "pdyform/core";
 
 // src/components/Input.tsx
 import * as React from "react";
@@ -193,14 +199,11 @@ var Label = React6.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ 
 Label.displayName = LabelPrimitive.Root.displayName;
 
 // src/components/InputRenderer.tsx
+import { normalizeFieldValue } from "pdyform/core";
 import { jsx as jsx7 } from "react/jsx-runtime";
 var InputRenderer = ({ field, value, onChange, onBlur, fieldId }) => {
   const handleChange = (nextValue) => {
-    if (field.type !== "number") {
-      onChange(nextValue);
-      return;
-    }
-    onChange(nextValue === "" ? "" : Number(nextValue));
+    onChange(normalizeFieldValue(field, nextValue));
   };
   return /* @__PURE__ */ jsx7(
     Input,
@@ -343,47 +346,21 @@ var FormFieldRenderer = ({
 // src/DynamicForm.tsx
 import { jsx as jsx13, jsxs as jsxs6 } from "react/jsx-runtime";
 var DynamicForm = ({ schema, onSubmit, className }) => {
-  const [values, setValues] = useState(getDefaultValues(schema.fields));
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formState, setFormState] = useState(() => createFormRuntimeState(schema.fields));
   const handleFieldChange = (name, value) => {
-    setValues((prev) => ({ ...prev, [name]: value }));
-    const field = schema.fields.find((f) => f.name === name);
-    if (field) {
-      const error = validateField(value, field);
-      setErrors((prev) => ({
-        ...prev,
-        [name]: error || ""
-      }));
-    }
+    setFormState((prev) => applyFieldChange(schema.fields, prev, name, value));
   };
   const handleFieldBlur = (name) => {
-    const field = schema.fields.find((f) => f.name === name);
-    if (field) {
-      const error = validateField(values[name], field);
-      setErrors((prev) => ({
-        ...prev,
-        [name]: error || ""
-      }));
-    }
+    setFormState((prev) => applyFieldBlur(schema.fields, prev, name));
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    const newErrors = {};
-    let hasError = false;
-    schema.fields.forEach((field) => {
-      const error = validateField(values[field.name], field);
-      if (error) {
-        newErrors[field.name] = error;
-        hasError = true;
-      }
-    });
-    setErrors(newErrors);
+    const submittingState = setSubmitting(formState, true);
+    const { state: validatedState, hasError } = runSubmitValidation(schema.fields, submittingState);
+    setFormState(validatedState);
     if (!hasError) {
-      onSubmit(values);
+      onSubmit(validatedState.values);
     }
-    setIsSubmitting(false);
   };
   return /* @__PURE__ */ jsxs6("form", { onSubmit: handleSubmit, className: `space-y-6 ${className || ""}`, children: [
     schema.title && /* @__PURE__ */ jsx13("h2", { className: "text-2xl font-bold tracking-tight", children: schema.title }),
@@ -392,10 +369,10 @@ var DynamicForm = ({ schema, onSubmit, className }) => {
       FormFieldRenderer,
       {
         field,
-        value: values[field.name],
+        value: formState.values[field.name],
         onChange: (val) => handleFieldChange(field.name, val),
         onBlur: () => handleFieldBlur(field.name),
-        error: errors[field.name]
+        error: formState.errors[field.name]
       },
       field.name
     )) }),
@@ -403,9 +380,9 @@ var DynamicForm = ({ schema, onSubmit, className }) => {
       "button",
       {
         type: "submit",
-        disabled: isSubmitting,
+        disabled: formState.isSubmitting,
         className: "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full",
-        children: isSubmitting ? "Submitting..." : schema.submitButtonText || "Submit"
+        children: formState.isSubmitting ? "Submitting..." : schema.submitButtonText || "Submit"
       }
     )
   ] });

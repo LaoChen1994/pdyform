@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { FormSchema, validateField, getDefaultValues } from 'pdyform/core';
+import {
+  FormSchema,
+  FormRuntimeState,
+  createFormRuntimeState,
+  applyFieldChange,
+  applyFieldBlur,
+  runSubmitValidation,
+  setSubmitting,
+} from 'pdyform/core';
 import { FormFieldRenderer } from './FormFieldRenderer';
 
 interface DynamicFormProps {
@@ -9,56 +17,24 @@ interface DynamicFormProps {
 }
 
 export const DynamicForm: React.FC<DynamicFormProps> = ({ schema, onSubmit, className }) => {
-  const [values, setValues] = useState<Record<string, any>>(getDefaultValues(schema.fields));
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formState, setFormState] = useState<FormRuntimeState>(() => createFormRuntimeState(schema.fields));
 
   const handleFieldChange = (name: string, value: any) => {
-    setValues((prev) => ({ ...prev, [name]: value }));
-    
-    // Validate on change
-    const field = schema.fields.find(f => f.name === name);
-    if (field) {
-      const error = validateField(value, field);
-      setErrors((prev) => ({
-        ...prev,
-        [name]: error || ''
-      }));
-    }
+    setFormState((prev) => applyFieldChange(schema.fields, prev, name, value));
   };
 
   const handleFieldBlur = (name: string) => {
-    const field = schema.fields.find(f => f.name === name);
-    if (field) {
-      const error = validateField(values[name], field);
-      setErrors((prev) => ({
-        ...prev,
-        [name]: error || ''
-      }));
-    }
+    setFormState((prev) => applyFieldBlur(schema.fields, prev, name));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
-    const newErrors: Record<string, string> = {};
-    let hasError = false;
-
-    schema.fields.forEach((field) => {
-      const error = validateField(values[field.name], field);
-      if (error) {
-        newErrors[field.name] = error;
-        hasError = true;
-      }
-    });
-
-    setErrors(newErrors);
-
+    const submittingState = setSubmitting(formState, true);
+    const { state: validatedState, hasError } = runSubmitValidation(schema.fields, submittingState);
+    setFormState(validatedState);
     if (!hasError) {
-      onSubmit(values);
+      onSubmit(validatedState.values);
     }
-    setIsSubmitting(false);
   };
 
   return (
@@ -72,10 +48,10 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({ schema, onSubmit, clas
             <FormFieldRenderer
               key={field.name}
               field={field}
-              value={values[field.name]}
+              value={formState.values[field.name]}
               onChange={(val) => handleFieldChange(field.name, val)}
               onBlur={() => handleFieldBlur(field.name)}
-              error={errors[field.name]}
+              error={formState.errors[field.name]}
             />
           )
         ))}
@@ -83,10 +59,10 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({ schema, onSubmit, clas
 
       <button
         type="submit"
-        disabled={isSubmitting}
+        disabled={formState.isSubmitting}
         className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
       >
-        {isSubmitting ? 'Submitting...' : (schema.submitButtonText || 'Submit')}
+        {formState.isSubmitting ? 'Submitting...' : (schema.submitButtonText || 'Submit')}
       </button>
     </form>
   );

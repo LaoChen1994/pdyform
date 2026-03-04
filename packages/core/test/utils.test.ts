@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validateField, getDefaultValues } from '../src';
+import { validateField, validateFieldByName, validateForm, normalizeFieldValue, getDefaultValues } from '../src';
 import { FormField } from '../src/types';
 
 describe('core utils - validateField', () => {
@@ -77,6 +77,85 @@ describe('core utils - validateField', () => {
       expect(validateField('test', field)).toBe('Not magic');
       expect(validateField('magic', field)).toBeNull();
     });
+  });
+
+  describe('rule defaults and edge cases', () => {
+    it('uses default required message when custom message is absent', () => {
+      const field: FormField = {
+        name: 'title',
+        label: 'Title',
+        type: 'text',
+        validations: [{ type: 'required' }],
+      };
+      expect(validateField('', field)).toBe('Title is required');
+    });
+
+    it('uses default min/max messages', () => {
+      const field: FormField = {
+        name: 'score',
+        label: 'Score',
+        type: 'number',
+        validations: [{ type: 'min', value: 10 }, { type: 'max', value: 20 }],
+      };
+      expect(validateField(9, field)).toBe('Score must be at least 10');
+      expect(validateField(21, field)).toBe('Score must be at most 20');
+    });
+
+    it('supports custom pattern message', () => {
+      const field: FormField = {
+        name: 'phone',
+        label: 'Phone',
+        type: 'text',
+        validations: [{ type: 'pattern', value: '^\\d{11}$', message: 'Phone must be 11 digits' }],
+      };
+      expect(validateField('123', field)).toBe('Phone must be 11 digits');
+    });
+
+    it('uses fallback custom message when custom validator returns false', () => {
+      const field: FormField = {
+        name: 'code',
+        label: 'Code',
+        type: 'text',
+        validations: [{ type: 'custom', message: 'Code invalid', validator: () => false }],
+      };
+      expect(validateField('anything', field)).toBe('Code invalid');
+    });
+  });
+});
+
+describe('core utils - normalizeFieldValue', () => {
+  const numberField: FormField = { name: 'age', label: 'Age', type: 'number' };
+  const textField: FormField = { name: 'name', label: 'Name', type: 'text' };
+
+  it('coerces number field values', () => {
+    expect(normalizeFieldValue(numberField, '22')).toBe(22);
+    expect(normalizeFieldValue(numberField, 22)).toBe(22);
+    expect(normalizeFieldValue(numberField, '')).toBe('');
+  });
+
+  it('keeps non-number fields unchanged', () => {
+    expect(normalizeFieldValue(textField, 'abc')).toBe('abc');
+  });
+});
+
+describe('core utils - validate helpers', () => {
+  const fields: FormField[] = [
+    { name: 'username', label: 'Username', type: 'text', validations: [{ type: 'required', message: 'Required' }] },
+    { name: 'age', label: 'Age', type: 'number', validations: [{ type: 'min', value: 18, message: 'Age >= 18' }] },
+  ];
+
+  it('validates a field by name', () => {
+    expect(validateFieldByName(fields, 'username', '')).toBe('Required');
+    expect(validateFieldByName(fields, 'username', 'ok')).toBeNull();
+    expect(validateFieldByName(fields, 'missing', 'x')).toBeNull();
+  });
+
+  it('validates entire form and returns keyed errors', () => {
+    expect(validateForm(fields, { username: '', age: 17 })).toEqual({
+      username: 'Required',
+      age: 'Age >= 18',
+    });
+    expect(validateForm(fields, { username: 'ok', age: 18 })).toEqual({});
   });
 });
 

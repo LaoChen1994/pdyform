@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import type { FormSchema } from 'pdyform/core';
-import { validateField, getDefaultValues } from 'pdyform/core';
+import { ref } from 'vue';
+import type { FormSchema, FormRuntimeState } from 'pdyform/core';
+import {
+  createFormRuntimeState,
+  applyFieldChange,
+  runSubmitValidation,
+  setSubmitting,
+} from 'pdyform/core';
 import FormFieldRenderer from './FormFieldRenderer.vue';
 
 const props = defineProps<{
@@ -11,43 +16,20 @@ const props = defineProps<{
 
 const emit = defineEmits(['submit']);
 
-const values = ref<Record<string, any>>({});
-const errors = ref<Record<string, string>>({});
-const isSubmitting = ref(false);
-
-onMounted(() => {
-  values.value = getDefaultValues(props.schema.fields);
-});
+const formState = ref<FormRuntimeState>(createFormRuntimeState(props.schema.fields));
 
 const handleFieldChange = (name: string, value: any) => {
-  values.value[name] = value;
-  
-  const field = props.schema.fields.find(f => f.name === name);
-  if (field) {
-    const error = validateField(value, field);
-    errors.value[name] = error || '';
-  }
+  formState.value = applyFieldChange(props.schema.fields, formState.value, name, value);
 };
 
 const handleSubmit = () => {
-  isSubmitting.value = true;
-  const newErrors: Record<string, string> = {};
-  let hasError = false;
-
-  props.schema.fields.forEach((field) => {
-    const error = validateField(values.value[field.name], field);
-    if (error) {
-      newErrors[field.name] = error;
-      hasError = true;
-    }
-  });
-
-  errors.value = newErrors;
+  const submittingState = setSubmitting(formState.value, true);
+  const { state: validatedState, hasError } = runSubmitValidation(props.schema.fields, submittingState);
+  formState.value = validatedState;
 
   if (!hasError) {
-    emit('submit', { ...values.value });
+    emit('submit', { ...validatedState.values });
   }
-  isSubmitting.value = false;
 };
 </script>
 
@@ -63,8 +45,8 @@ const handleSubmit = () => {
         <FormFieldRenderer
           v-if="!field.hidden"
           :field="field"
-          :model-value="values[field.name]"
-          :error="errors[field.name]"
+          :model-value="formState.values[field.name]"
+          :error="formState.errors[field.name]"
           @update:model-value="(val: any) => handleFieldChange(field.name, val)"
         />
       </template>
@@ -72,10 +54,10 @@ const handleSubmit = () => {
 
     <button
       type="submit"
-      :disabled="isSubmitting"
+      :disabled="formState.isSubmitting"
       class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
     >
-      {{ isSubmitting ? 'Submitting...' : (schema.submitButtonText || 'Submit') }}
+      {{ formState.isSubmitting ? 'Submitting...' : (schema.submitButtonText || 'Submit') }}
     </button>
   </form>
 </template>

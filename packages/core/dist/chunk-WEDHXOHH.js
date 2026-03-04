@@ -5,6 +5,12 @@ function parseNumberish(value) {
   const parsed = Number(value);
   return Number.isNaN(parsed) ? null : parsed;
 }
+function normalizeFieldValue(field, value) {
+  if (field.type !== "number") return value;
+  if (value === "" || value === void 0 || value === null) return "";
+  const numericValue = parseNumberish(value);
+  return numericValue === null ? value : numericValue;
+}
 function validateField(value, field) {
   if (!field.validations) return null;
   for (const rule of field.validations) {
@@ -67,6 +73,19 @@ function validateField(value, field) {
   }
   return null;
 }
+function validateFieldByName(fields, name, value) {
+  const field = fields.find((f) => f.name === name);
+  if (!field) return null;
+  return validateField(value, field);
+}
+function validateForm(fields, values) {
+  const errors = {};
+  for (const field of fields) {
+    const error = validateField(values[field.name], field);
+    if (error) errors[field.name] = error;
+  }
+  return errors;
+}
 function getDefaultValues(fields) {
   return fields.reduce((acc, field) => {
     acc[field.name] = field.defaultValue !== void 0 ? field.defaultValue : field.type === "checkbox" ? [] : "";
@@ -75,6 +94,9 @@ function getDefaultValues(fields) {
 }
 
 export {
+  normalizeFieldValue,
   validateField,
+  validateFieldByName,
+  validateForm,
   getDefaultValues
 };
