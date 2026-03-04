@@ -11,18 +11,18 @@ export default defineConfig({
       fileName: (format) => `index.${format === 'es' ? 'mjs' : 'js'}`,
     },
     rollupOptions: {
-      external: ['vue', 'pdform/core'],
+      external: ['vue', 'pdyform/core'],
       output: {
         globals: {
           vue: 'Vue',
-          'pdform/core': 'PdformCore',
+          'pdyform/core': 'PdyformCore',
         },
       },
     },
   },
   resolve: {
     alias: {
-      'pdform/core': path.resolve(__dirname, '../core/src'),
+      'pdyform/core': path.resolve(__dirname, '../core/src'),
     },
   },
 });

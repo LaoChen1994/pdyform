@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import type { FormSchema } from 'pdform/core';
-import { validateField, getDefaultValues } from 'pdform/core';
+import type { FormSchema } from 'pdyform/core';
+import { validateField, getDefaultValues } from 'pdyform/core';
 import FormFieldRenderer from './FormFieldRenderer.vue';
 
 const props = defineProps<{

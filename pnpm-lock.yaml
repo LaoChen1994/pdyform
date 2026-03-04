@@ -50,7 +50,7 @@ importers:
 
   packages/core:
     dependencies:
-      pdform:
+      pdyform:
         specifier: workspace:*
         version: link:../..
     devDependencies:
@@ -72,7 +72,7 @@ importers:
       lucide-react:
         specifier: ^0.300.0
         version: 0.300.0(react@18.3.1)
-      pdform:
+      pdyform:
         specifier: workspace:*
         version: link:../..
       tailwind-merge:
@@ -121,7 +121,7 @@ importers:
       lucide-vue-next:
         specifier: ^0.300.0
         version: 0.300.0(vue@3.5.29(typescript@5.9.3))
-      pdform:
+      pdyform:
         specifier: workspace:*
         version: link:../..
       tailwind-merge:

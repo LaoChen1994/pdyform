@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FormField } from 'pdform/core';
+import type { FormField } from 'pdyform/core';
 import { computed } from 'vue';
 
 const props = defineProps<{
