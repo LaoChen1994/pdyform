@@ -30,6 +30,7 @@ export default function App() {
   }, []);
 
   const handleSubmit = useCallback((values: Record<string, unknown>) => {
+    console.log('Form submitted with values:', values);
     setSubmitResult(prettyJSON(values));
   }, []);
 

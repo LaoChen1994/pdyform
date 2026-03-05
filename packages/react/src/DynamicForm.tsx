@@ -17,20 +17,30 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({ schema, onSubmit, clas
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { hasError, values, state } = await form.validate();
-    
-    if (hasError) {
-      // Find the first field in schema that has an error
-      const firstErrorField = schema.fields.find((f: FormField) => state.errors[f.name]);
-      if (firstErrorField) {
-        const element = document.getElementById(`field-${firstErrorField.name}`);
-        element?.focus();
-        element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    try {
+      const { hasError, values, state } = await form.validate();
+
+      console.log('has error =>', hasError, values, state)
+      
+      if (hasError) {
+        // Find the first visible field in schema that has an error
+        const firstErrorField = schema.fields.find((f: FormField) => {
+          const isHidden = typeof f.hidden === 'function' ? f.hidden(formState.values) : f.hidden;
+          return !isHidden && state.errors[f.name];
+        });
+        
+        if (firstErrorField) {
+          const element = document.getElementById(`field-${firstErrorField.name}`);
+          element?.focus();
+          element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
       }
-      return;
+      
+      await onSubmit(values);
+    } catch (error) {
+      console.error('Submission error:', error);
     }
-    
-    onSubmit(values);
   };
 
   const isAnyFieldValidating = formState.validatingFields.length > 0;

@@ -28,7 +28,7 @@ describe('core formStore helpers', () => {
     await store.getState().setFieldValue('age', '22');
 
     expect(store.getState().values.age).toBe(22);
-    expect(store.getState().errors.age).toBe('');
+    expect(store.getState().errors.age).toBeUndefined();
   });
 
   it('applies blur validation', async () => {

@@ -6,8 +6,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      'pdyform/react': fileURLToPath(new URL('../../packages/react/src/index.tsx', import.meta.url)),
-      'pdyform/core': fileURLToPath(new URL('../../packages/core/src/index.ts', import.meta.url)),
+      'pdyform-react': fileURLToPath(new URL('../../packages/react/src/index.tsx', import.meta.url)),
+      'pdyform-core': fileURLToPath(new URL('../../packages/core/src/index.ts', import.meta.url)),
     },
     dedupe: ['react', 'react-dom'],
   },

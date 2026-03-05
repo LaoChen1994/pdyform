@@ -1,8 +1,8 @@
-import { defineComponent as p, openBlock as d, createElementBlock as g, mergeProps as $, unref as o, createBlock as y, computed as h, withCtx as m, renderSlot as q, createVNode as b, normalizeClass as D, createElementVNode as O, normalizeProps as X, guardReactiveProps as Y, Fragment as N, renderList as E, createTextVNode as U, toDisplayString as I, createCommentVNode as R, resolveDynamicComponent as Z, ref as _, onUnmounted as ee, withModifiers as te } from "vue";
+import { defineComponent as p, openBlock as d, createElementBlock as g, mergeProps as I, unref as o, createBlock as v, computed as h, withCtx as m, renderSlot as q, createVNode as b, normalizeClass as D, createElementVNode as O, normalizeProps as X, guardReactiveProps as Y, Fragment as N, renderList as E, createTextVNode as U, toDisplayString as F, createCommentVNode as R, resolveDynamicComponent as Z, ref as _, onUnmounted as ee, withModifiers as te } from "vue";
 import { clsx as ae } from "clsx";
 import { twMerge as le } from "tailwind-merge";
 import { useForwardProps as j, SelectTrigger as ie, SelectIcon as ne, SelectPortal as se, SelectContent as re, SelectViewport as oe, SelectItem as de, SelectItemIndicator as ue, SelectItemText as ce, useForwardPropsEmits as A, SelectRoot as me, SelectValue as fe, CheckboxRoot as be, CheckboxIndicator as pe, Label as ge, RadioGroupItem as ye, RadioGroupIndicator as ve, RadioGroupRoot as he, SwitchRoot as xe, SwitchThumb as Ve } from "radix-vue";
-import { ChevronDown as ke, Check as W, Circle as we } from "lucide-vue-next";
+import { ChevronDown as ke, Check as K, Circle as we } from "lucide-vue-next";
 function z(e) {
   if (typeof e == "number") return Number.isNaN(e) ? null : e;
   if (typeof e != "string" || e.trim() === "") return null;
@@ -35,12 +35,12 @@ function Se(e, l, i) {
   const n = l.split(/[.[\]]/).filter(Boolean), a = { ...e };
   let t = a;
   for (let r = 0; r < n.length - 1; r++) {
-    const s = n[r], u = n[r + 1], c = /^\d+$/.test(u);
-    !(s in t) || t[s] === null || typeof t[s] != "object" ? t[s] = c ? [] : {} : t[s] = Array.isArray(t[s]) ? [...t[s]] : { ...t[s] }, t = t[s];
+    const s = n[r], u = n[r + 1], f = /^\d+$/.test(u);
+    !(s in t) || t[s] === null || typeof t[s] != "object" ? t[s] = f ? [] : {} : t[s] = Array.isArray(t[s]) ? [...t[s]] : { ...t[s] }, t = t[s];
   }
   return t[n[n.length - 1]] = i, a;
 }
-function H(e, l) {
+function W(e, l) {
   if (e.type !== "number") return l;
   if (l === "" || l === void 0 || l === null) return "";
   const i = z(l);
@@ -108,52 +108,57 @@ async function G(e, l, i, n, a, t) {
   const r = e.find((s) => s.name === l);
   return r ? await J(i, r, t) : null;
 }
-async function $e(e, l, i, n) {
+async function Ie(e, l, i, n) {
   let a = {};
   i && (a = await i(l));
   const t = e.map(async (r) => {
-    if (a[r.name]) return;
-    const s = await J(M(l, r.name), r, n);
-    s && (a[r.name] = s);
+    if (a[r.name] || (typeof r.hidden == "function" ? r.hidden(l) : r.hidden)) return;
+    const u = await J(M(l, r.name), r, n);
+    u && (a[r.name] = u);
   });
   return await Promise.all(t), a;
 }
-function Ie(e) {
+function $e(e) {
   return e.reduce((l, i) => (l[i.name] = i.defaultValue !== void 0 ? i.defaultValue : i.type === "checkbox" ? [] : "", l), {});
 }
 const L = (e) => {
   let l;
-  const i = /* @__PURE__ */ new Set(), n = (c, x) => {
-    const f = typeof c == "function" ? c(l) : c;
-    if (!Object.is(f, l)) {
-      const V = l;
-      l = x ?? (typeof f != "object" || f === null) ? f : Object.assign({}, l, f), i.forEach((F) => F(l, V));
+  const i = /* @__PURE__ */ new Set(), n = (f, $) => {
+    const c = typeof f == "function" ? f(l) : f;
+    if (!Object.is(c, l)) {
+      const x = l;
+      l = $ ?? (typeof c != "object" || c === null) ? c : Object.assign({}, l, c), i.forEach((V) => V(l, x));
     }
-  }, a = () => l, s = { setState: n, getState: a, getInitialState: () => u, subscribe: (c) => (i.add(c), () => i.delete(c)) }, u = l = e(n, a, s);
+  }, a = () => l, s = { setState: n, getState: a, getInitialState: () => u, subscribe: (f) => (i.add(f), () => i.delete(f)) }, u = l = e(n, a, s);
   return s;
 }, Fe = (e) => e ? L(e) : L;
 function Re(e, l, i) {
   return Fe()((n, a) => ({
-    values: Ie(e),
+    values: $e(e),
     errors: {},
     validatingFields: [],
     isSubmitting: !1,
     setFieldValue: async (t, r) => {
-      const s = e.find((c) => c.name === t), u = s ? H(s, r) : r;
+      const s = e.find((c) => c.name === t), u = s ? W(s, r) : r;
       n((c) => ({
-        values: Se(c.values, t, u),
-        validatingFields: [...c.validatingFields, t]
+        values: Se(c.values, t, u)
       }));
-      try {
-        const c = a().values, x = await G(e, t, u, l, c, i);
-        n((f) => ({
-          errors: { ...f.errors, [t]: x || "" },
-          validatingFields: f.validatingFields.filter((V) => V !== t)
+      const f = !!a().errors[t];
+      if (s && ["select", "checkbox", "radio", "switch", "date"].includes(s.type) || f) {
+        n((c) => ({
+          validatingFields: [...c.validatingFields, t]
         }));
-      } catch {
-        n((x) => ({
-          validatingFields: x.validatingFields.filter((f) => f !== t)
-        }));
+        try {
+          const c = a().values, x = await G(e, t, u, l, c, i);
+          n((V) => ({
+            errors: { ...V.errors, [t]: x || "" },
+            validatingFields: V.validatingFields.filter((y) => y !== t)
+          }));
+        } catch {
+          n((x) => ({
+            validatingFields: x.validatingFields.filter((V) => V !== t)
+          }));
+        }
       }
     },
     setFieldBlur: async (t) => {
@@ -162,9 +167,9 @@ function Re(e, l, i) {
       }));
       try {
         const r = a().values, s = M(r, t), u = await G(e, t, s, l, r, i);
-        n((c) => ({
-          errors: { ...c.errors, [t]: u || "" },
-          validatingFields: c.validatingFields.filter((x) => x !== t)
+        n((f) => ({
+          errors: { ...f.errors, [t]: u || "" },
+          validatingFields: f.validatingFields.filter(($) => $ !== t)
         }));
       } catch {
         n((s) => ({
@@ -175,7 +180,7 @@ function Re(e, l, i) {
     setSubmitting: (t) => n({ isSubmitting: t }),
     runSubmitValidation: async () => {
       n({ isSubmitting: !0 });
-      const t = a(), r = await $e(e, t.values, l, i), s = Object.keys(r).length > 0;
+      const t = a(), r = await Ie(e, t.values, l, i), s = Object.keys(r).length > 0;
       return n({
         errors: r,
         isSubmitting: !1
@@ -199,7 +204,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
   emits: ["update:modelValue", "blur"],
   setup(e, { emit: l }) {
     const i = e, n = l;
-    return (a, t) => (d(), g("input", $(a.$attrs, {
+    return (a, t) => (d(), g("input", I(a.$attrs, {
       type: e.type,
       class: o(w)("flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50", i.class),
       value: e.modelValue,
@@ -220,9 +225,9 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
   emits: ["update:modelValue", "blur"],
   setup(e, { emit: l }) {
     const i = e, n = l, a = (t) => {
-      n("update:modelValue", H(i.field, t));
+      n("update:modelValue", W(i.field, t));
     };
-    return (t, r) => (d(), y(Q, {
+    return (t, r) => (d(), v(Q, {
       id: e.fieldId,
       type: e.field.type,
       placeholder: e.field.placeholder,
@@ -242,7 +247,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
   emits: ["update:modelValue", "blur"],
   setup(e, { emit: l }) {
     const i = e, n = l;
-    return (a, t) => (d(), g("textarea", $(a.$attrs, {
+    return (a, t) => (d(), g("textarea", I(a.$attrs, {
       class: o(w)("flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50", i.class),
       value: e.modelValue,
       onInput: t[0] || (t[0] = (r) => n("update:modelValue", r.target.value)),
@@ -262,7 +267,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
   emits: ["update:modelValue"],
   setup(e, { emit: l }) {
     const i = l;
-    return (n, a) => (d(), y(Pe, {
+    return (n, a) => (d(), v(Pe, {
       id: e.fieldId,
       placeholder: e.field.placeholder,
       disabled: typeof e.field.disabled == "boolean" ? e.field.disabled : void 0,
@@ -284,7 +289,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
       const { class: a, ...t } = l;
       return t;
     }), n = j(i);
-    return (a, t) => (d(), y(o(ie), $(o(n), {
+    return (a, t) => (d(), v(o(ie), I(o(n), {
       class: o(w)("flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50", l.class)
     }), {
       default: m(() => [
@@ -326,9 +331,9 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
       const { class: a, ...t } = l;
       return t;
     }), n = j(i);
-    return (a, t) => (d(), y(o(se), null, {
+    return (a, t) => (d(), v(o(se), null, {
       default: m(() => [
-        b(o(re), $(o(n), {
+        b(o(re), I(o(n), {
           class: o(w)("relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2", e.position === "popper" && "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1", l.class)
         }), {
           default: m(() => [
@@ -362,7 +367,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
       const { class: a, ...t } = l;
       return t;
     }), n = j(i);
-    return (a, t) => (d(), y(o(de), $(o(n), {
+    return (a, t) => (d(), v(o(de), I(o(n), {
       class: o(w)(
         "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         l.class
@@ -372,7 +377,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
         O("span", Ue, [
           b(o(ue), null, {
             default: m(() => [
-              b(o(W), { class: "h-4 w-4" })
+              b(o(K), { class: "h-4 w-4" })
             ]),
             _: 1
           })
@@ -403,7 +408,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
   emits: ["update:modelValue", "update:open"],
   setup(e, { emit: l }) {
     const a = A(e, l);
-    return (t, r) => (d(), y(o(me), X(Y(o(a))), {
+    return (t, r) => (d(), v(o(me), X(Y(o(a))), {
       default: m(() => [
         q(t.$slots, "default")
       ]),
@@ -423,7 +428,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
   emits: ["update:modelValue"],
   setup(e, { emit: l }) {
     const i = l;
-    return (n, a) => (d(), y(Ae, {
+    return (n, a) => (d(), v(Ae, {
       disabled: typeof e.field.disabled == "boolean" ? e.field.disabled : void 0,
       name: e.field.name,
       modelValue: e.modelValue != null ? String(e.modelValue) : "",
@@ -440,12 +445,12 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
         }, 8, ["id"]),
         b(Ee, null, {
           default: m(() => [
-            (d(!0), g(N, null, E(e.field.options, (t) => (d(), y(je, {
+            (d(!0), g(N, null, E(e.field.options, (t) => (d(), v(je, {
               key: t.value,
               value: String(t.value)
             }, {
               default: m(() => [
-                U(I(t.label), 1)
+                U(F(t.label), 1)
               ]),
               _: 2
             }, 1032, ["value"]))), 128))
@@ -476,14 +481,14 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
       const { class: r, ...s } = i;
       return s;
     }), t = A(a, n);
-    return (r, s) => (d(), y(o(be), $(o(t), {
+    return (r, s) => (d(), v(o(be), I(o(t), {
       class: o(w)("peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground", i.class),
       onBlur: s[0] || (s[0] = (u) => n("blur"))
     }), {
       default: m(() => [
         b(o(pe), { class: "flex h-full w-full items-center justify-center text-current" }, {
           default: m(() => [
-            b(o(W), { class: "h-4 w-4" })
+            b(o(K), { class: "h-4 w-4" })
           ]),
           _: 1
         })
@@ -504,7 +509,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
       const { class: n, ...a } = l;
       return a;
     });
-    return (n, a) => (d(), y(o(ge), $(i.value, {
+    return (n, a) => (d(), v(o(ge), I(i.value, {
       class: o(w)("text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", l.class)
     }), {
       default: m(() => [
@@ -551,7 +556,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
           class: "font-normal"
         }, {
           default: m(() => [
-            U(I(s.label), 1)
+            U(F(s.label), 1)
           ]),
           _: 2
         }, 1032, ["for"])
@@ -575,7 +580,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
       const { class: a, ...t } = l;
       return t;
     }), n = j(i);
-    return (a, t) => (d(), y(o(ye), $(o(n), {
+    return (a, t) => (d(), v(o(ye), I(o(n), {
       class: o(w)("aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50", l.class)
     }), {
       default: m(() => [
@@ -610,7 +615,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
       const { class: r, ...s } = i;
       return s;
     }), t = A(a, n);
-    return (r, s) => (d(), y(o(he), $(o(t), {
+    return (r, s) => (d(), v(o(he), I(o(t), {
       class: o(w)("grid gap-2", i.class)
     }), {
       default: m(() => [
@@ -619,7 +624,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
       _: 3
     }, 16, ["class"]));
   }
-}), Ke = /* @__PURE__ */ p({
+}), He = /* @__PURE__ */ p({
   __name: "RadioRenderer",
   props: {
     field: {},
@@ -632,7 +637,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
   emits: ["update:modelValue"],
   setup(e, { emit: l }) {
     const i = l;
-    return (n, a) => (d(), y(Le, {
+    return (n, a) => (d(), v(Le, {
       class: "flex flex-wrap gap-4",
       disabled: typeof e.field.disabled == "boolean" ? e.field.disabled : void 0,
       name: e.field.name,
@@ -653,7 +658,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
             class: "font-normal"
           }, {
             default: m(() => [
-              U(I(t.label), 1)
+              U(F(t.label), 1)
             ]),
             _: 2
           }, 1032, ["for"])
@@ -662,7 +667,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
       _: 1
     }, 8, ["disabled", "name", "modelValue"]));
   }
-}), We = /* @__PURE__ */ p({
+}), Ke = /* @__PURE__ */ p({
   __name: "DateRenderer",
   props: {
     field: {},
@@ -675,7 +680,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
   emits: ["update:modelValue", "blur"],
   setup(e, { emit: l }) {
     const i = l;
-    return (n, a) => (d(), y(Q, {
+    return (n, a) => (d(), v(Q, {
       id: e.fieldId,
       type: "date",
       modelValue: e.modelValue,
@@ -689,7 +694,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
       onBlur: a[1] || (a[1] = (t) => i("blur", t))
     }, null, 8, ["id", "modelValue", "placeholder", "disabled", "name", "aria-invalid", "aria-required", "aria-describedby"]));
   }
-}), He = /* @__PURE__ */ p({
+}), We = /* @__PURE__ */ p({
   __name: "Switch",
   props: {
     defaultChecked: { type: Boolean },
@@ -709,7 +714,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
       const { class: r, ...s } = i;
       return s;
     }), t = A(a, n);
-    return (r, s) => (d(), y(o(xe), $(o(t), {
+    return (r, s) => (d(), v(o(xe), I(o(t), {
       class: o(w)(
         "peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input",
         i.class
@@ -739,7 +744,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
   setup(e, { emit: l }) {
     const i = l;
     return (n, a) => (d(), g("div", Je, [
-      b(He, {
+      b(We, {
         id: e.fieldId,
         checked: e.modelValue,
         disabled: typeof e.field.disabled == "boolean" ? e.field.disabled : void 0,
@@ -750,7 +755,7 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
       }, null, 8, ["id", "checked", "disabled", "aria-invalid", "aria-required", "aria-describedby"])
     ]));
   }
-}), K = {
+}), H = {
   text: P,
   number: P,
   password: P,
@@ -758,8 +763,8 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
   textarea: De,
   select: Me,
   checkbox: Te,
-  radio: Ke,
-  date: We,
+  radio: He,
+  date: Ke,
   switch: Qe
 }, Xe = {
   key: 0,
@@ -775,50 +780,50 @@ const Ce = ["type", "value"], Q = /* @__PURE__ */ p({
   emits: ["update:modelValue", "blur"],
   setup(e, { emit: l }) {
     const i = e, n = l, a = h(() => `field-${i.field.name}`), t = h(() => `${a.value}-description`), r = h(() => `${a.value}-error`), s = h(() => {
-      var f;
-      return (f = i.field.validations) == null ? void 0 : f.some((V) => V.type === "required");
+      var c;
+      return (c = i.field.validations) == null ? void 0 : c.some((x) => x.type === "required");
     }), u = h(() => {
-      const f = [];
-      return i.field.description && f.push(t.value), i.error && f.push(r.value), f.length > 0 ? f.join(" ") : void 0;
-    }), c = h(
-      () => i.componentMap ? { ...K, ...i.componentMap } : K
-    ), x = h(
-      () => c.value[i.field.type] ?? P
+      const c = [];
+      return i.field.description && c.push(t.value), i.error && c.push(r.value), c.length > 0 ? c.join(" ") : void 0;
+    }), f = h(
+      () => i.componentMap ? { ...H, ...i.componentMap } : H
+    ), $ = h(
+      () => f.value[i.field.type] ?? P
     );
-    return (f, V) => (d(), g("div", {
+    return (c, x) => (d(), g("div", {
       class: D(["space-y-2", e.field.className])
     }, [
-      e.field.label ? (d(), y(T, {
+      e.field.label ? (d(), v(T, {
         key: 0,
         for: a.value,
         class: D(s.value ? "flex items-center gap-1" : "")
       }, {
         default: m(() => [
-          U(I(e.field.label) + " ", 1),
+          U(F(e.field.label) + " ", 1),
           s.value ? (d(), g("span", Xe, "*")) : R("", !0)
         ]),
         _: 1
       }, 8, ["for", "class"])) : R("", !0),
-      (d(), y(Z(x.value), {
+      (d(), v(Z($.value), {
         field: e.field,
         fieldId: a.value,
         modelValue: e.modelValue,
         "aria-invalid": !!e.error,
         "aria-required": s.value,
         "aria-describedby": u.value,
-        "onUpdate:modelValue": V[0] || (V[0] = (F) => n("update:modelValue", F)),
-        onBlur: V[1] || (V[1] = (F) => n("blur", F))
+        "onUpdate:modelValue": x[0] || (x[0] = (V) => n("update:modelValue", V)),
+        onBlur: x[1] || (x[1] = (V) => n("blur", V))
       }, null, 40, ["field", "fieldId", "modelValue", "aria-invalid", "aria-required", "aria-describedby"])),
       e.field.description ? (d(), g("p", {
         key: 1,
         id: t.value,
         class: "text-[0.8rem] text-muted-foreground"
-      }, I(e.field.description), 9, Ye)) : R("", !0),
+      }, F(e.field.description), 9, Ye)) : R("", !0),
       e.error ? (d(), g("p", {
         key: 2,
         id: r.value,
         class: "text-[0.8rem] font-medium text-destructive"
-      }, I(e.error), 9, Ze)) : R("", !0)
+      }, F(e.error), 9, Ze)) : R("", !0)
     ], 2));
   }
 });
@@ -832,13 +837,13 @@ function et({ schema: e }) {
     store: l,
     state: i,
     // This is a Ref
-    setValue: async (u, c) => {
-      await l.getState().setFieldValue(u, c);
+    setValue: async (u, f) => {
+      await l.getState().setFieldValue(u, f);
     },
     getValue: (u) => M(i.value.values, u),
     validate: async () => {
-      const { hasError: u, state: c } = await l.getState().runSubmitValidation();
-      return { hasError: u, values: c.values };
+      const { hasError: u, state: f } = await l.getState().runSubmitValidation();
+      return { hasError: u, values: f.values };
     },
     reset: () => {
       l.setState({
@@ -867,16 +872,16 @@ const tt = {
   },
   emits: ["submit"],
   setup(e, { emit: l }) {
-    const i = e, n = l, a = et({ schema: i.schema }), t = i.form || a, { store: r, state: s } = t, u = async (v, C) => {
-      await r.getState().setFieldValue(v, C);
-    }, c = async (v) => {
-      await r.getState().setFieldBlur(v);
-    }, x = (v) => typeof v.hidden == "function" ? v.hidden(s.value.values) : !!v.hidden, f = (v) => {
-      const C = typeof v.disabled == "function" ? v.disabled(s.value.values) : !!v.disabled, k = s.value.validatingFields.includes(v.name);
-      return { ...v, disabled: C || k };
-    }, V = async () => {
-      const { hasError: v, values: C } = await t.validate();
-      if (v) {
+    const i = e, n = l, a = et({ schema: i.schema }), t = i.form || a, { store: r, state: s } = t, u = async (y, C) => {
+      await r.getState().setFieldValue(y, C);
+    }, f = async (y) => {
+      await r.getState().setFieldBlur(y);
+    }, $ = (y) => typeof y.hidden == "function" ? y.hidden(s.value.values) : !!y.hidden, c = (y) => {
+      const C = typeof y.disabled == "function" ? y.disabled(s.value.values) : !!y.disabled, k = s.value.validatingFields.includes(y.name);
+      return { ...y, disabled: C || k };
+    }, x = async () => {
+      const { hasError: y, values: C } = await t.validate();
+      if (y) {
         const k = i.schema.fields.find((B) => s.value.errors[B.name]);
         if (k) {
           const B = document.getElementById(`field-${k.name}`);
@@ -884,41 +889,41 @@ const tt = {
         }
         return;
       }
-      n("submit", C);
-    }, F = h(() => s.value.validatingFields.length > 0);
-    return (v, C) => (d(), g("form", {
+      await n("submit", C);
+    }, V = h(() => s.value.validatingFields.length > 0);
+    return (y, C) => (d(), g("form", {
       class: D(["space-y-6", e.className]),
-      onSubmit: te(V, ["prevent"])
+      onSubmit: te(x, ["prevent"])
     }, [
       e.schema.title || e.schema.description ? (d(), g("div", tt, [
-        e.schema.title ? (d(), g("h2", at, I(e.schema.title), 1)) : R("", !0),
-        e.schema.description ? (d(), g("p", lt, I(e.schema.description), 1)) : R("", !0)
+        e.schema.title ? (d(), g("h2", at, F(e.schema.title), 1)) : R("", !0),
+        e.schema.description ? (d(), g("p", lt, F(e.schema.description), 1)) : R("", !0)
       ])) : R("", !0),
       O("div", it, [
         (d(!0), g(N, null, E(e.schema.fields, (k) => (d(), g(N, {
           key: k.id
         }, [
-          x(k) ? R("", !0) : (d(), y(_e, {
+          $(k) ? R("", !0) : (d(), v(_e, {
             key: 0,
-            field: f(k),
+            field: c(k),
             "model-value": o(M)(o(s).values, k.name),
             error: o(s).errors[k.name],
             "onUpdate:modelValue": (B) => u(k.name, B),
-            onBlur: (B) => c(k.name)
+            onBlur: (B) => f(k.name)
           }, null, 8, ["field", "model-value", "error", "onUpdate:modelValue", "onBlur"]))
         ], 64))), 128))
       ]),
       O("button", {
         type: "submit",
-        disabled: o(s).isSubmitting || F.value,
+        disabled: o(s).isSubmitting || V.value,
         class: "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
-      }, I(o(s).isSubmitting ? "Submitting..." : F.value ? "Validating..." : e.schema.submitButtonText || "Submit"), 9, nt)
+      }, F(o(s).isSubmitting ? "Submitting..." : V.value ? "Validating..." : e.schema.submitButtonText || "Submit"), 9, nt)
     ], 34));
   }
 });
 export {
   ct as DynamicForm,
   _e as FormFieldRenderer,
-  K as defaultComponentMap,
+  H as defaultComponentMap,
   et as useForm
 };

@@ -133,6 +133,8 @@ async function validateForm(fields, values, resolver, customMessages) {
   }
   const validationPromises = fields.map(async (field) => {
     if (errors[field.name]) return;
+    const isHidden = typeof field.hidden === "function" ? field.hidden(values) : field.hidden;
+    if (isHidden) return;
     const error = await validateField(get(values, field.name), field, customMessages);
     if (error) errors[field.name] = error;
   });

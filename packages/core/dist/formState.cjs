@@ -160,6 +160,8 @@ async function validateForm(fields, values, resolver, customMessages) {
   }
   const validationPromises = fields.map(async (field) => {
     if (errors[field.name]) return;
+    const isHidden = typeof field.hidden === "function" ? field.hidden(values) : field.hidden;
+    if (isHidden) return;
     const error = await validateField(get(values, field.name), field, customMessages);
     if (error) errors[field.name] = error;
   });
@@ -184,20 +186,26 @@ function createFormStore(fields, resolver, errorMessages) {
       const field = fields.find((f) => f.name === name);
       const normalizedValue = field ? normalizeFieldValue(field, rawValue) : rawValue;
       set2((state) => ({
-        values: set(state.values, name, normalizedValue),
-        validatingFields: [...state.validatingFields, name]
+        values: set(state.values, name, normalizedValue)
       }));
-      try {
-        const currentValues = getStore().values;
-        const error = await validateFieldByName(fields, name, normalizedValue, resolver, currentValues, errorMessages);
+      const hasExistingError = !!getStore().errors[name];
+      const shouldValidateImmediately = field && ["select", "checkbox", "radio", "switch", "date"].includes(field.type);
+      if (shouldValidateImmediately || hasExistingError) {
         set2((state) => ({
-          errors: { ...state.errors, [name]: error || "" },
-          validatingFields: state.validatingFields.filter((f) => f !== name)
+          validatingFields: [...state.validatingFields, name]
         }));
-      } catch (err) {
-        set2((state) => ({
-          validatingFields: state.validatingFields.filter((f) => f !== name)
-        }));
+        try {
+          const currentValues = getStore().values;
+          const error = await validateFieldByName(fields, name, normalizedValue, resolver, currentValues, errorMessages);
+          set2((state) => ({
+            errors: { ...state.errors, [name]: error || "" },
+            validatingFields: state.validatingFields.filter((f) => f !== name)
+          }));
+        } catch (err) {
+          set2((state) => ({
+            validatingFields: state.validatingFields.filter((f) => f !== name)
+          }));
+        }
       }
     },
     setFieldBlur: async (name) => {

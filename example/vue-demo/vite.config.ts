@@ -6,8 +6,8 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      'pdyform/vue': fileURLToPath(new URL('../../packages/vue/src/index.ts', import.meta.url)),
-      'pdyform/core': fileURLToPath(new URL('../../packages/core/src/index.ts', import.meta.url)),
+      'pdyform-vue': fileURLToPath(new URL('../../packages/vue/src/index.ts', import.meta.url)),
+      'pdyform-core': fileURLToPath(new URL('../../packages/core/src/index.ts', import.meta.url)),
     },
     dedupe: ['vue'],
   },

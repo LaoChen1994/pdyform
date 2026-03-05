@@ -30,20 +30,30 @@ export function createFormStore(fields: FormField[], resolver?: FormResolver, er
       // Update value immediately
       set((state) => ({
         values: setPathValue(state.values, name, normalizedValue),
-        validatingFields: [...state.validatingFields, name],
       }));
 
-      try {
-        const currentValues = getStore().values;
-        const error = await validateFieldByName(fields, name, normalizedValue, resolver, currentValues, errorMessages);
+      // Only trigger validation for specific types that need immediate feedback
+      // Or if the field already has an error, validate to clear it
+      const hasExistingError = !!getStore().errors[name];
+      const shouldValidateImmediately = field && ['select', 'checkbox', 'radio', 'switch', 'date'].includes(field.type);
+
+      if (shouldValidateImmediately || hasExistingError) {
         set((state) => ({
-          errors: { ...state.errors, [name]: error || '' },
-          validatingFields: state.validatingFields.filter((f) => f !== name),
+          validatingFields: [...state.validatingFields, name],
         }));
-      } catch (err) {
-        set((state) => ({
-          validatingFields: state.validatingFields.filter((f) => f !== name),
-        }));
+
+        try {
+          const currentValues = getStore().values;
+          const error = await validateFieldByName(fields, name, normalizedValue, resolver, currentValues, errorMessages);
+          set((state) => ({
+            errors: { ...state.errors, [name]: error || '' },
+            validatingFields: state.validatingFields.filter((f) => f !== name),
+          }));
+        } catch (err) {
+          set((state) => ({
+            validatingFields: state.validatingFields.filter((f) => f !== name),
+          }));
+        }
       }
     },
 

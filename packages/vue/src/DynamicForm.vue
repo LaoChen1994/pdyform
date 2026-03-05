@@ -48,7 +48,7 @@ const handleSubmit = async () => {
     return;
   }
   
-  emit('submit', values);
+  await emit('submit', values);
 };
 
 const isAnyFieldValidating = computed(() => formState.value.validatingFields.length > 0);
